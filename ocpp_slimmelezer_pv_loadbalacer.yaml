@@ -69,10 +69,11 @@ blueprint:
       selector:
         select:
           options:
-            - label: Single Phase
-              value: 230
-            - label: Three Phase
-              value: 690
+          - label: Single Phase
+            value: 230
+          - label: Three Phase
+            value: 690
+      default: 690
       
 trigger:
 - platform: state
