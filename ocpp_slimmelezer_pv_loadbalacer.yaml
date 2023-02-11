@@ -41,7 +41,27 @@ blueprint:
           device_class: number
           multiple: false
       default: number.charger_maximum_current
-
+    iminimumcurrent:
+      name: Minimum current for charging  
+      description: Set your minimum current your OCPP charger works with
+      selector:
+        number:
+          mode: box
+          step: 1
+          min: 1
+          max: 32
+      default: 3
+    imaximumcurrent:
+      name: Maximum current for charging  
+      description: Set your maximum current your OCPP charger works with
+      selector:
+        number:
+          mode: box
+          step: 1
+          min: 1
+          max: 32
+      default: 16
+      
 trigger:
 - platform: state
   entity_id:
