@@ -32,8 +32,8 @@ blueprint:
       default: '22:00:00'
       selector:
         time: {}
-    imaximumcurrent:
-      name: OCPP Maxmium Current sensor
+    ichargercurrent:
+      name: OCPP Charger Current sensor
       description: 'By default: number.charger_maximum_current'
       selector:
         entity:
@@ -71,7 +71,7 @@ trigger:
 
 condition:
 - condition: template
-  value_template: '{{ entMaximumCurrent != valCurrentAvailableForCharging }}'
+  value_template: '{{ entChargerCurrent != valCurrentAvailableForCharging }}'
 - condition: time
   after: !input 'itimestart'
   before: !input 'itimeend'
@@ -82,11 +82,11 @@ action:
     value: '{{ valCurrentAvailableForCharging }}'
   target:
     entity_id: 
-    - !input 'imaximumcurrent'
+    - !input 'entChargerCurrent'
 
 variables:
   entActiveGridPower: !input 'iactivegridpower'
-  entMaximumCurrent: !input 'imaximumcurrent'
+  entChargerCurrent: !input 'ichargercurrent'
   valCurrentAvailableForCharging: 16
 
 mode: restart
