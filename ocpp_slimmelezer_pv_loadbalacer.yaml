@@ -71,7 +71,8 @@ blueprint:
           options:
             - 230V
             - 690V
-      
+      default: 690V
+
 trigger:
 - platform: state
   entity_id:
