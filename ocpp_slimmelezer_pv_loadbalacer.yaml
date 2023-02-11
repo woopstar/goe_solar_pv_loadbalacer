@@ -73,7 +73,7 @@ blueprint:
             value: 230
           - label: Three Phase
             value: 690
-      default: 690
+          multiple: false
       
 trigger:
 - platform: state
