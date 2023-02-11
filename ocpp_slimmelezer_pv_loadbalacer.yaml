@@ -69,11 +69,8 @@ blueprint:
       selector:
         select:
           options:
-          - label: "Single Phase"
-            value: "230"
-          - label: "Three Phase"
-            value: "690"
-          multiple: false
+          - 230
+          - 690
           mode: dropdown
       
 trigger:
