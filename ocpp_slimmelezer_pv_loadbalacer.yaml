@@ -64,5 +64,6 @@ blueprint:
   variables:
     entActiveGridPower: !input 'iactivegridpower'
     entMaximumCurrent: !input 'imaximumcurrent'
+    valCurrentAvailableForCharging: '16'
   mode: restart
   max_exceeded: silent
