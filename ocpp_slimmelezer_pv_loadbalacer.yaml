@@ -1,4 +1,3 @@
----
 blueprint:
   domain: automation
   name: OCPP & Slimmelezer+ PV Loadbalancing
@@ -47,6 +46,7 @@ trigger:
 - platform: state
   entity_id:
   - !input 'iactivegridpower'
+
 condition:
 - condition: state
   entity_id: !input 'ichargerstatus'
@@ -56,12 +56,14 @@ condition:
 - condition: time
   after: !input 'itimestart'
   before: !input 'itimeend'
+
 action:
 - service: number.set_value
   data:
     value: '{{ valCurrentAvailableForCharging }}'
   target:
-    entity_id: !input 'imaximumcurrent'
+    entity_id: 
+    - !input 'imaximumcurrent'
 
 variables:
   entActiveGridPower: !input 'iactivegridpower'
