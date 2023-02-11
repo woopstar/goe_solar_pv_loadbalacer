@@ -68,10 +68,10 @@ blueprint:
       description: Set the voltage of your charger. 230V for Single Phase and 690V for Three Phase.
       selector:
         options:
-        - label: Single Phase
-          value: 230
-        - label: Three Phase
-          value: 690
+          - label: Single Phase
+            value: 230
+          - label: Three Phase
+            value: 690
       
 trigger:
 - platform: state
