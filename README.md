@@ -13,4 +13,15 @@ Before you use this blueprint, make sure you have a OCPP Charger and Slimmelezer
 Link to <b>OCPP</b> Integration: https://github.com/lbbrhzn/ocpp <br>
 Link to <b>Slimmelezer+</b> https://www.zuidwijk.com/product/slimmelezer-plus/<br>
 <br>
-<br>
+The DSMR protocol used by Slimmelezer+ does not provide a sensor for actual power with negative values for export and positive values for import. Use the following template sensor to create one:
+<br><br>
+
+```yaml
+- sensor:
+  - name: Power Grid Active Power
+    unique_id: grid_active_power
+    unit_of_measurement: "W"
+    device_class: power
+    state: >-
+      {{ ((states('sensor.power_consumed') | float - states('sensor.power_produced') | float) * 1000) | round }}
+```
