@@ -47,7 +47,7 @@ blueprint:
       selector:
         number:
           step: 1
-          min: 1
+          min: 0
           max: 32
           mode: slider
           unit_of_measurement: 'A'
@@ -70,7 +70,7 @@ blueprint:
         select:
           options:
           - label: "Single Phase"
-            value: "230
+            value: "230"
           - label: "Three Phase"
             value: "690"
           multiple: false
