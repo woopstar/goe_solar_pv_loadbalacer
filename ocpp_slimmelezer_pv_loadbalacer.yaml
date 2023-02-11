@@ -99,6 +99,7 @@ variables:
   entChargerCurrent: !input 'ichargercurrent'
   entMinimumCurrent: !input 'iminimumcurrent'
   entMaximumCurrent: !input 'imaximumcurrent'
+  entChargerVoltage: !input 'ichargervoltage'
   valCurrentAvailableForCharging: 16
 
 mode: restart
