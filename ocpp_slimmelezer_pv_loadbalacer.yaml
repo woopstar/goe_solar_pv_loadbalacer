@@ -1,0 +1,68 @@
+---
+blueprint:
+  domain: automation
+  name: OCPP & Slimmelezer+ PV Loadbalancing
+  description: The integration of Slimmelezer+ and OCPP enables dynamic balancing of photovoltaic (PV) load. 
+    In instances where the Active Grid Power is negative, signifying an overproduction of solar energy, this automation 
+    will dynamically regulate the OCPP Current to align with the surplus energy production. 
+    This enables the efficient utilization of excess solar energy for electric vehicle charging.
+    <br><br>You need to have both a OCPP and Slimmelezer+ integration up and running through
+    HACS.
+  source_url: https://github.com/woopstar/ocpp_slimmelezer_pv_loadbalacer/blob/main/ocpp_slimmelezer_pv_loadbalacer.yaml
+  input:
+    iactivegridpower:
+      name: Active Grid Power sensor
+      description: 'By default: sensor.grid_active_power'
+      selector:
+        entity:
+          domain: sensor
+          device_class: power
+          multiple: false
+      default: sensor.grid_active_power
+    itimestart:
+      name: Activate time
+      description: Set the time you want the load balancing to activate. This is important
+        to avoid low charging currents during nighttime.
+      default: 08:00:00
+      selector:
+        time: {}
+    itimeend:
+      name: Deactivate time
+      description: Set the time you want the load balancing to deactivate. This is
+        important to avoid low charging currents during nighttime.
+      default: '22:00:00'
+      selector:
+        time: {}
+    imaximumcurrent:
+      name: OCPP Maxmium Current sensor
+      description: 'By default: number.charger_maximum_current'
+      selector:
+        entity:
+          domain: number
+          device_class: number
+          multiple: false
+      default: number.charger_maximum_current
+  trigger:
+    - platform: state
+      entity_id:
+      - !input 'iactivegridpower'
+  condition:
+    - condition: state
+      entity_id: !input 'ichargerstatus'
+      state: charging
+    - condition: template
+      value_template: '{{ entMaximumCurrent | int != valCurrentAvailableForCharging }}'
+    - condition: time
+      after: !input 'itimestart'
+      before: !input 'itimeend'
+  action:
+    - service: number.set_value
+      data:
+        value: "{{ valCurrentAvailableForCharging }}"
+      target:
+        entity_id: !input 'imaximumcurrent'
+  variables:
+    entActiveGridPower: !input 'iactivegridpower'
+    entMaximumCurrent: !input 'imaximumcurrent'
+  mode: restart
+  max_exceeded: silent
