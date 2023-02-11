@@ -81,6 +81,8 @@ trigger:
 condition:
 - condition: template
   value_template: '{{ ( states(entChargerCurrent) | int ) != valCurrentAvailableForCharging }}'
+- condition: template
+  value_template: '{{ now() - state_attr(this.entity_id, 'last_triggered') > timedelta(minutes=5) }}'
 - condition: time
   after: !input 'itimestart'
   before: !input 'itimeend'
