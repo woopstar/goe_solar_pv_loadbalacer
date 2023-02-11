@@ -42,28 +42,30 @@ blueprint:
           device_class: number
           multiple: false
       default: number.charger_maximum_current
-  trigger:
-    - platform: state
-      entity_id:
-      - !input 'iactivegridpower'
-  condition:
-    - condition: state
-      entity_id: !input 'ichargerstatus'
-      state: charging
-    - condition: template
-      value_template: '{{ entMaximumCurrent | int != valCurrentAvailableForCharging }}'
-    - condition: time
-      after: !input 'itimestart'
-      before: !input 'itimeend'
-  action:
-    - service: number.set_value
-      data:
-        value: "{{ valCurrentAvailableForCharging }}"
-      target:
-        entity_id: !input 'imaximumcurrent'
-  variables:
-    entActiveGridPower: !input 'iactivegridpower'
-    entMaximumCurrent: !input 'imaximumcurrent'
-    valCurrentAvailableForCharging: '16'
-  mode: restart
-  max_exceeded: silent
+trigger:
+  - platform: state
+    entity_id:
+    - !input 'iactivegridpower'
+condition:
+  - condition: state
+    entity_id: !input 'ichargerstatus'
+    state: charging
+  - condition: template
+    value_template: '{{ entMaximumCurrent | int != valCurrentAvailableForCharging }}'
+  - condition: time
+    after: !input 'itimestart'
+    before: !input 'itimeend'
+action:
+  - service: number.set_value
+    data:
+      value: "{{ valCurrentAvailableForCharging }}"
+    target:
+      entity_id: !input 'imaximumcurrent'
+
+variables:
+  entActiveGridPower: !input 'iactivegridpower'
+  entMaximumCurrent: !input 'imaximumcurrent'
+  valCurrentAvailableForCharging: '16'
+
+mode: restart
+max_exceeded: silent
