@@ -79,7 +79,7 @@ trigger:
 
 condition:
 - condition: template
-  value_template: '{{ entChargerCurrent != valCurrentAvailableForCharging }}'
+  value_template: '{{ ( states(entChargerCurrent) | int ) != valCurrentAvailableForCharging }}'
 - condition: time
   after: !input 'itimestart'
   before: !input 'itimeend'
