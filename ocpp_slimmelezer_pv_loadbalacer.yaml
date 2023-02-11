@@ -48,9 +48,6 @@ trigger:
   - !input 'iactivegridpower'
 
 condition:
-- condition: state
-  entity_id: !input 'ichargerstatus'
-  state: charging
 - condition: template
   value_template: '{{ entMaximumCurrent != valCurrentAvailableForCharging }}'
 - condition: time
