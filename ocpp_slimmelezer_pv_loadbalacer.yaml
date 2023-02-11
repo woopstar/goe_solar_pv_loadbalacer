@@ -69,8 +69,8 @@ blueprint:
       selector:
         select:
           options:
-          - 230
-          - 690
+          - "230V"
+          - "690V"
           mode: dropdown
       
 trigger:
