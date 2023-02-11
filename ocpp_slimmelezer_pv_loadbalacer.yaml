@@ -99,7 +99,7 @@ variables:
   entMaximumCurrent: !input 'imaximumcurrent'
   entChargerVoltage: !input 'ichargervoltage'
   valChargerVoltage: '{% if entChargerVoltage == "230V" %}{{ 230 }}{% endif %}{% if entChargerVoltage == "690V" %}{{ 690 }}{% endif %}'
-  valCurrentAvailableForCharging: '{% if entActiveGridPower | int < 0 %}{% set AvailableCurrent = ( ( ( entActiveGridPower | int ) * -1) / ( valChargerVoltage | int ) ) | float %}{% if AvailableCurrent < entMinimumCurrent | int %}{% set AvailableCurrent = 0 %}{% elif AvailableCurrent > (entMaximumCurrent | int ) %}{% set AvailableCurrent = (entMaximumCurrent | int) %}{% endif %}{% endif %}{{ AvailableCurrent | default(0) | int }}'
+  valCurrentAvailableForCharging: '{% if states(entActiveGridPower) | int < 0 %}{% set AvailableCurrent = ( ( ( states(entActiveGridPower) | int ) * -1) / ( valChargerVoltage | int ) ) | float %}{% if AvailableCurrent < entMinimumCurrent | int %}{% set AvailableCurrent = 0 %}{% elif AvailableCurrent > (entMaximumCurrent | int ) %}{% set AvailableCurrent = (entMaximumCurrent | int) %}{% endif %}{% endif %}{{ AvailableCurrent | default(0) | int }}'
 
 mode: restart
 max_exceeded: silent
