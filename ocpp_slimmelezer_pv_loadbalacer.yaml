@@ -34,13 +34,13 @@ blueprint:
         time: {}
     ichargercurrent:
       name: OCPP Charger Current sensor
-      description: 'By default: number.charger_maximum_current'
+      description: 'By default: input_number.charger_maximum_current'
       selector:
         entity:
-          domain: number
-          device_class: number
+          domain: input_number
+          device_class: input_number
           multiple: false
-      default: number.charger_maximum_current
+      default: input_number.charger_maximum_current
     iminimumcurrent:
       name: Minimum current for charging  
       description: Set your minimum current your OCPP charger works with
@@ -85,12 +85,13 @@ condition:
   before: !input 'itimeend'
 
 action:
-- service: number.set_value
+- service: input_number.set_value
   data:
     value: '{{ valCurrentAvailableForCharging }}'
   target:
-    entity_id: 
+    entity_id:
     - !input 'ichargercurrent'
+
 
 variables:
   entActiveGridPower: !input 'iactivegridpower'
