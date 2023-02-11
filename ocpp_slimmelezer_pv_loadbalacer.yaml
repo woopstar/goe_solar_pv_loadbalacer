@@ -82,7 +82,7 @@ action:
     value: '{{ valCurrentAvailableForCharging }}'
   target:
     entity_id: 
-    - !input 'entChargerCurrent'
+    - !input 'ichargercurrent'
 
 variables:
   entActiveGridPower: !input 'iactivegridpower'
