@@ -12,6 +12,7 @@ Before you use this blueprint, make sure you have a OCPP Charger and Slimmelezer
 <br>
 Link to <b>OCPP</b> Integration: https://github.com/lbbrhzn/ocpp <br>
 Link to <b>Slimmelezer+</b> https://www.zuidwijk.com/product/slimmelezer-plus/<br>
+Link to <b>ha-average</b> https://github.com/Limych/ha-average
 <br>
 The DSMR protocol used by Slimmelezer+ does not provide a sensor for actual power with negative values for export and positive values for import. Use the following template sensor to create one:
 <br><br>
