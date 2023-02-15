@@ -86,6 +86,10 @@ condition:
 - condition: time
   after: !input 'itimestart'
   before: !input 'itimeend'
+- condition: numeric_state
+  entity_id: sun.sun
+  above: 7
+  attribute: elevation
 
 action:
 - service: input_number.set_value
