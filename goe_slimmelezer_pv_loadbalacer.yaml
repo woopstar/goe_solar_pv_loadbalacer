@@ -77,6 +77,14 @@ blueprint:
           domain: sensor
           multiple: false
       default: sensor.go_echarger_222819_spl3
+    iallowcharging:
+      name: Switch to allow charging
+      description: 'Switch to turn on and off charging. By default: switch.go_echarger_222819_allow_charging'
+      selector:
+        entity:
+          domain: switch
+          multiple: false
+      default: switch.go_echarger_222819_allow_charging
 
 trigger:
 - platform: state
@@ -107,12 +115,31 @@ action:
       target:
         entity_id:
         - !input iforcesinglephase
-- service: number.set_value
-  data:
-    value: '{{ valCurrentAvailableForCharging | int }}'
-  target:
-    entity_id:
-    - !input ichargercurrent
+- if:
+    - condition: template
+      value_template: "{{ valCurrentAvailableForCharging | int >= states(entMinimumCurrent) | int }}"
+  then:
+    - service: number.set_value
+      data:
+        value: '{{ valCurrentAvailableForCharging | int }}'
+      target:
+        entity_id:
+        - !input ichargercurrent
+    - service: switch.turn_on
+      target:
+        entity_id:
+        - !input iallowcharging
+  else:
+    - service: number.set_value
+      data:
+        value: '{{ states(entMinimumCurrent) | int }}'
+      target:
+        entity_id:
+        - !input ichargercurrent
+    - service: switch.turn_off
+      target:
+        entity_id:
+        - !input iallowcharging
 
 variables:
   entMeanPowerGridAvailable: !input imeanpowergridavailable
@@ -120,6 +147,7 @@ variables:
   entMinimumCurrent: !input iminimumcurrent
   entMaximumCurrent: !input imaximumcurrent
   entThreePhaseSwitchLevel: !input ithreephaseswitchlevel
+  entAllowCharging: !input iallowcharging
   valCurrentAvailableForCharging: '
     {% if states(entMeanPowerGridAvailable) | int < states(entThreePhaseSwitchLevel) | int %}
       {% set PhasesToUse = 1 %}
