@@ -56,3 +56,33 @@ The DSMR protocol used by Slimmelezer+ does not provide a sensor for actual powe
     duration:
       minutes: 5
 ```
+
+You will also need a custom switch to turn on and off charging on the charger, since go-e mqtt does not have that implemented:
+
+```yaml
+switch:
+  - platform: template
+    switches:
+      go_echarger_222819_allow_charging:
+        friendly_name: "Allow Charging"
+        unique_id: go_echarger_222819_allow_charging
+        value_template: "{{ is_state('sensor.go_echarger_222819_frc', 'Charge') }}"
+        turn_on:
+          service: select.select_option
+          target:
+            entity_id: select.go_echarger_222819_frc
+          data:
+            option: "Charge"
+        turn_off:
+          service: select.select_option
+          target:
+            entity_id: select.go_echarger_222819_frc
+          data:
+            option: "Don't charge"
+        icon_template: >-
+          {% if is_state('sensor.go_echarger_222819_frc', 'Charge') %}
+            mdi:power-plug
+          {% else %}
+            mdi:power-plug-off
+          {% endif %}
+```
