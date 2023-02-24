@@ -149,7 +149,7 @@ variables:
   entThreePhaseSwitchLevel: !input ithreephaseswitchlevel
   entAllowCharging: !input iallowcharging
   valCurrentAvailableForCharging: '
-    {% if states(entMeanPowerGridAvailable) | int < states(entThreePhaseSwitchLevel) | int %}
+    {% if ( states(entMeanPowerGridAvailable) | int ) * -1 < states(entThreePhaseSwitchLevel) | int %}
       {% set PhasesToUse = 1 %}
     {% else %}
       {% set PhasesToUse = 3 %}
@@ -158,7 +158,7 @@ variables:
     {% set valChargerVoltage = (230 * PhasesToUse) | int %}
 
     {% if (states(entMeanPowerGridAvailable) | int) < 0 %}
-      {% set AvailableCurrent = ( ( states(entMeanPowerGridAvailable) | int ) / valChargerVoltage ) | float %}
+      {% set AvailableCurrent = ( ( states(entMeanPowerGridAvailable) | int ) / valChargerVoltage ) * -1 | float %}
 
       {% if AvailableCurrent < states(entMinimumCurrent) | int %}
         {% set AvailableCurrent = 0 %}
