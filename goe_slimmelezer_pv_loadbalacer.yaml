@@ -1,170 +1,192 @@
 blueprint:
   domain: automation
-  name: go-e MQTT & Slimmelezer+ PV Loadbalancing
-  description: The integration of Slimmelezer+ and go-e MQTT enables dynamic balancing
-    of photovoltaic (PV) load. In instances where the Mean Active Grid Power is negative,
-    signifying an overproduction of solar energy, this automation will dynamically
-    regulate the go-e Current to align with the surplus energy production. This enables
-    the efficient utilization of excess solar energy for electric vehicle charging.
-    <br><br>
-    You need to have both a go-e and potentially Slimmelezer+ integration up and running through HACS.
-    <br><br>
-    The integration uses the sun integration to check if the elevantion is over 7 degrees before the
-    automation runs, as there is no need to run when there is no sun.
+  name: go-e MQTT & Huawei Solar PV/EV Loadbalancing
+  description: The integration of Huawei Solar and go-e MQTT enables dynamic balancing
+    of photovoltaic (PV) load into your EV.
   source_url: https://github.com/woopstar/goe_slimmelezer_pv_loadbalacer/blob/main/goe_slimmelezer_pv_loadbalacer.yaml
   input:
-    imeanpowergridavailable:
-      name: Mean Power Grid Available For Charging
-      description: 'Mean Power Sensor. Shall refelect a negative value when overproduction happens from solar power. By default: sensor.mean_power_grid_available_for_charging'
+    iTimeStart:
+      name: Automation Activation Time
+      description: 'Set the time you want the load balancing to activate. This is important to avoid low charging currents during nighttime.'
+      default: 08:00:00
+      selector:
+        time: {}
+    iTimeEnd:
+      name: Automation Deactivation Time
+      description: 'Set the time you want the load balancing to deactivate. This is important to avoid low charging currents during nighttime.'
+      default: '22:00:00'
+      selector:
+        time: {}
+    iMinimumCurrent:
+      name: Minimum current for charging
+      description: "By default: 6A"
+      selector:
+        number:
+          min: 0
+          max: 32
+          step: 1
+          unit_of_measurement: 'A'
+          mode: slider
+      default: 6
+    iMaximumCurrent:
+      name: Maximum current for charging
+      description: "By default: 16A"
+      selector:
+        number:
+          min: 0
+          max: 32
+          step: 1
+          unit_of_measurement: 'A'
+          mode: slider
+      default: 16
+    iThreePhaseSwitchLevel:
+      name: Three phase switch level
+      description: 'Switch between one or three phase. By default: 4200W'
+      selector:
+        number:
+          min: 0
+          max: 7000
+          step: 1
+          unit_of_measurement: 'W'
+          mode: slider
+      default: 4200
+    iMeanPowerAvailableForCharging:
+      name: Huawei - Mean Power Available For Charging
+      description: 'By default: sensor.huawei_power_available_for_charging'
       selector:
         entity:
           domain: sensor
           device_class: power
           multiple: false
-      default: sensor.mean_power_grid_available_for_charging
-    itimestart:
-      name: Activate time
-      description: 'Set the time you want the load balancing to activate. This is important to avoid low charging currents during nighttime.'
-      default: 08:00:00
-      selector:
-        time: {}
-    itimeend:
-      name: Deactivate time
-      description: 'Set the time you want the load balancing to deactivate. This is important to avoid low charging currents during nighttime.'
-      default: '22:00:00'
-      selector:
-        time: {}
-    ichargercurrent:
-      name: go-E Requested current
-      description: 'Set requested current on the go-e charger. By default: number.go_echarger_222819_amp'
+      default: sensor.mean_huawei_power_available_for_charging_2_min
+    iChargerCurrent:
+      name: go-E - Requested current
+      description: 'By default: number.go_echarger_222819_amp'
       selector:
         entity:
           domain: number
           device_class: number
           multiple: false
       default: number.go_echarger_222819_amp
-    iminimumcurrent:
-      name: Minimum current for charging
-      description: "Set your minimum current your go-E charger works with. By default: sensor.go_echarger_222819_mca"
-      selector:
-        entity:
-          domain: sensor
-          device_class: power
-          multiple: false
-      default: sensor.go_echarger_222819_mca
-    imaximumcurrent:
-      name: Maximum current for charging
-      description: "Set your maximum current your go-E charger works with. By default: sensor.go_echarger_222819_ama"
-      selector:
-        entity:
-          domain: sensor
-          device_class: power
-          multiple: false
-      default: sensor.go_echarger_222819_ama
-    iforcesinglephase:
-      name: Force single phase
-      description: 'Switch to enable or disable single phase charging. By default: switch.go_echarger_222819_psm'
+    iForceSinglePhase:
+      name: go-E - Force single phase
+      description: 'By default: switch.go_echarger_222819_psm'
       selector:
         entity:
           domain: switch
           multiple: false
       default: switch.go_echarger_222819_psm
-    ithreephaseswitchlevel:
-      name: Three phase switch level
-      description: 'Sensor to read from when to switch between single or three phase charging. By default: sensor.go_echarger_222819_spl3'
+    iCarConnected:
+      name: go-E - Car Connected
+      description: 'By default: binary_sensor.go_echarger_222819_car'
       selector:
         entity:
-          domain: sensor
+          domain: binary_sensor
           multiple: false
-      default: sensor.go_echarger_222819_spl3
-    iallowcharging:
-      name: Switch to allow charging
-      description: 'Switch to turn on and off charging. By default: switch.go_echarger_222819_allow_charging'
+      default: binary_sensor.go_echarger_222819_car
+    iAllowCharging:
+      name: go-E - Switch to allow charging
+      description: 'By default: switch.go_echarger_222819_allow_charging'
       selector:
         entity:
           domain: switch
           multiple: false
       default: switch.go_echarger_222819_allow_charging
 
+# Trigger automation when power available changes
 trigger:
 - platform: state
   entity_id:
-  - !input imeanpowergridavailable
+  - !input iMeanPowerAvailableForCharging
+
 condition:
-- condition: template
-  value_template: '{{ ( states(entChargerCurrent) | int ) != valCurrentAvailableForCharging }}'
 - condition: time
-  after: !input itimestart
-  before: !input itimeend
+  after: !input iTimeStart
+  before: !input iTimeEnd
+
 - condition: numeric_state
   entity_id: sun.sun
   above: 7
   attribute: elevation
 
+- condition: state
+  state: "on"
+  entity_id:
+  - !input iCarConnected
+
+- condition: template
+  value_template: '{{ ( states(entChargerCurrent) | int(0) ) != valCurrentAvailableForCharging | int }}'
+
 action:
+# Switch between one or three phase
 - if:
     - condition: template
-      value_template: "{{ states(entMeanPowerGridAvailable) | int < states(entThreePhaseSwitchLevel) | int }}"
+      value_template: "{{ valPowerAvailable | float(0) < entThreePhaseSwitchLevel | int }}"
   then:
     - service: switch.turn_on
       target:
         entity_id:
-        - !input iforcesinglephase
+        - !input iForceSinglePhase
   else:
     - service: switch.turn_off
       target:
         entity_id:
-        - !input iforcesinglephase
+        - !input iForceSinglePhase
+
+# Set charger current based on calculations.
 - if:
     - condition: template
-      value_template: "{{ valCurrentAvailableForCharging | int >= states(entMinimumCurrent) | int }}"
+      value_template: "{{ valCurrentAvailableForCharging | int >= entMinimumCurrent | int }}"
   then:
     - service: number.set_value
       data:
         value: '{{ valCurrentAvailableForCharging | int }}'
       target:
         entity_id:
-        - !input ichargercurrent
-    - service: switch.turn_on
-      target:
-        entity_id:
-        - !input iallowcharging
+        - !input iChargerCurrent
+    - service: notify.mobile_app_ak_iphone
+      data:
+        message: "valPowerAvailable: {{ valPowerAvailable }}
+        valCurrentAvailableForCharging: {{ valCurrentAvailableForCharging }}"
   else:
     - service: number.set_value
       data:
-        value: '{{ states(entMinimumCurrent) | int }}'
+        value: '{{ entMinimumCurrent | int }}'
       target:
         entity_id:
-        - !input ichargercurrent
+        - !input iChargerCurrent
+
+# Turn charger on or off based on current
+- if:
+    - condition: template
+      value_template: "{{ valCurrentAvailableForCharging | int >= entMinimumCurrent | int }}"
+  then:
+    - service: switch.turn_on
+      target:
+        entity_id:
+        - !input iAllowCharging
+  else:
     - service: switch.turn_off
       target:
         entity_id:
-        - !input iallowcharging
+        - !input iAllowCharging
 
 variables:
-  entMeanPowerGridAvailable: !input imeanpowergridavailable
-  entChargerCurrent: !input ichargercurrent
-  entMinimumCurrent: !input iminimumcurrent
-  entMaximumCurrent: !input imaximumcurrent
-  entThreePhaseSwitchLevel: !input ithreephaseswitchlevel
-  entAllowCharging: !input iallowcharging
+  entMinimumCurrent: !input iMinimumCurrent
+  entMaximumCurrent: !input iMaximumCurrent
+  entThreePhaseSwitchLevel: !input iThreePhaseSwitchLevel
+  entMeanPowerAvailableForCharging: !input iMeanPowerAvailableForCharging
+  entChargerCurrent: !input iChargerCurrent
+  valPowerAvailable: '{{ states(entMeanPowerAvailableForCharging) }}'
+  valPhases: '{{ 3 if valPowerAvailable | float(1) > entThreePhaseSwitchLevel | int else 1 }}'
+  valChargerVoltage: "{{ 230 * valPhases | int }}"
+  valAvailableCurrent: '{{ ( valPowerAvailable | float(1) / valChargerVoltage | int ) | float }}'
   valCurrentAvailableForCharging: '
-    {% if ( states(entMeanPowerGridAvailable) | int ) * -1 < states(entThreePhaseSwitchLevel) | int %}
-      {% set PhasesToUse = 1 %}
-    {% else %}
-      {% set PhasesToUse = 3 %}
-    {% endif %}
-
-    {% set valChargerVoltage = (230 * PhasesToUse) | int %}
-
-    {% if (states(entMeanPowerGridAvailable) | int) < 0 %}
-      {% set AvailableCurrent = ( ( states(entMeanPowerGridAvailable) | int ) / valChargerVoltage ) * -1 | float %}
-
-      {% if AvailableCurrent < states(entMinimumCurrent) | int %}
-        {% set AvailableCurrent = 0 %}
-      {% elif AvailableCurrent > ( states(entMaximumCurrent) | int ) %}
-        {% set AvailableCurrent = ( states(entMaximumCurrent) | int) %}
-      {% endif %}
+    {% set AvailableCurrent = valAvailableCurrent %}
+    {% if AvailableCurrent < entMinimumCurrent | int %}
+      {% set AvailableCurrent = 0 %}
+    {% elif AvailableCurrent > entMaximumCurrent | int %}
+      {% set AvailableCurrent = entMaximumCurrent | int %}
     {% endif %}
     {{ AvailableCurrent | default(0) | int }}
   '
