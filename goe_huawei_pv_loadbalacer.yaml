@@ -144,10 +144,6 @@ action:
       target:
         entity_id:
         - !input iChargerCurrent
-    - service: notify.mobile_app_ak_iphone
-      data:
-        message: "valPowerAvailable: {{ valPowerAvailable }}
-        valCurrentAvailableForCharging: {{ valCurrentAvailableForCharging }}"
   else:
     - service: number.set_value
       data:
