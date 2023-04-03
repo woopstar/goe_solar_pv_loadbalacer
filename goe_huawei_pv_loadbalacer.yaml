@@ -52,7 +52,7 @@ blueprint:
       default: 4200
     iMeanPowerAvailableForCharging:
       name: Huawei - Mean Power Available For Charging
-      description: 'By default: sensor.huawei_power_available_for_charging'
+      description: 'By default: sensor.huawei_power_available_for_charging_2_min'
       selector:
         entity:
           domain: sensor
