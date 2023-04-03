@@ -51,6 +51,8 @@ The go-e charger does not have a switch to start and stop charging, so the follo
 
 You will also need to create the following template sensors to calculate how much excess power you currently produce. To  make sure you do not switch too often, we create a median over 2 minutes for the sensor (remember to change your charger id from 222819 to xxxxxx)::<br><br>
 
+For people with battery:
+
 ```yaml
 - platform: template
   sensors:
@@ -63,7 +65,27 @@ You will also need to create the following template sensors to calculate how muc
         {% set powerAvailable = states('sensor.go_echarger_222819_nrg_12') | float(0) + states('sensor.power_meter_active_power') | float(0) + states('sensor.battery_charge_discharge_power')  | float(0) %}
         {% set powerAvailable = (powerAvailable - states('number.battery_maximum_charging_power') | int(5000)) if states('sensor.battery_state_of_capacity') | int(5) < ( states('number.battery_end_of_charge_soc') | int(100) * 0.98 ) else powerAvailable %}
         {{ powerAvailable | float(0) }}
+```
 
+
+For people <b>with-out</b> battery:
+
+```yaml
+- platform: template
+  sensors:
+    huawei_power_available_for_charging:
+      friendly_name: "Huawei Power Available For Charging"
+      unique_id: "huawei_power_available_for_charging"
+      unit_of_measurement: "W"
+      device_class: power
+      value_template: >-
+        {% set powerAvailable = states('sensor.go_echarger_222819_nrg_12') | float(0) + states('sensor.power_meter_active_power') | float(0) + states('sensor.battery_charge_discharge_power')  | float(0) %}
+        {{ powerAvailable | float(0) }}
+```
+
+And the average sensor:
+
+```yaml
 - platform: average
   name: "Mean Huawei Power Available For Charging 2 min"
   unique_id: mean_huawei_power_available_for_charging_2_min
