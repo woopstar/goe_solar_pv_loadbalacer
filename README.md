@@ -6,6 +6,8 @@ This blueprint makes it possible to tune the charging power of your go-e charger
 
 Blueprint is custom made for go-e mqtt and Huawei Solar but will work with other brands of inverters and power messauring devices as long as it can provide the sensors required below is working.
 
+With inspiration from https://github.com/MadsGadeberg/EaseeLoadBalancer
+
 <br>
 <b><h2>Important!</h2></b><br>
 Before you use this blueprint, make sure you have the Sun integration, ha-average, go-e mqtt Charger and Huawei Solar Integrations fully up & running. <br>
