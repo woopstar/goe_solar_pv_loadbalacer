@@ -63,7 +63,7 @@ For people with battery:
       device_class: power
       value_template: >-
         {% set powerAvailable = states('sensor.go_echarger_222819_nrg_12') | float(0) + states('sensor.power_meter_active_power') | float(0) + states('sensor.battery_charge_discharge_power')  | float(0) %}
-        {% set powerAvailable = (powerAvailable - states('number.battery_maximum_charging_power') | int(5000)) if states('sensor.battery_state_of_capacity') | int(5) < ( states('number.battery_end_of_charge_soc') | int(100) * 0.98 ) else powerAvailable %}
+        {% set powerAvailable = (powerAvailable - states('sensor.battery_charge_discharge_power') | int(5000)) if states('sensor.battery_state_of_capacity') | int(5) < ( states('number.battery_end_of_charge_soc') | int(100) * 0.98 ) else powerAvailable %}
         {{ powerAvailable | float(0) }}
 ```
 
