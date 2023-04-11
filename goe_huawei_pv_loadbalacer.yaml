@@ -3,7 +3,7 @@ blueprint:
   name: go-e MQTT & Huawei Solar PV/EV Loadbalancing
   description: The integration of Huawei Solar and go-e MQTT enables dynamic balancing
     of photovoltaic (PV) load into your EV.
-  source_url: https://github.com/woopstar/goe_slimmelezer_pv_loadbalacer/blob/main/goe_slimmelezer_pv_loadbalacer.yaml
+  source_url: https://github.com/woopstar/goe_huawei_pv_loadbalacer/blob/main/goe_huawei_pv_loadbalacer.yaml
   input:
     iTimeStart:
       name: Automation Activation Time
@@ -40,8 +40,8 @@ blueprint:
           mode: slider
       default: 16
     iThreePhaseSwitchLevel:
-      name: Three phase switch level
-      description: 'Switch between one or three phase. By default: 4200W'
+      name: Phase switch level
+      description: 'Amount of power that needs to be free before we switch between one or three phase charging. By default: 4200W'
       selector:
         number:
           min: 0
@@ -51,8 +51,8 @@ blueprint:
           mode: slider
       default: 4200
     iMeanPowerAvailableForCharging:
-      name: Huawei - Mean Power Available For Charging
-      description: 'By default: sensor.huawei_power_available_for_charging_2_min'
+      name: Power Available For Charging
+      description: 'Sensor that indicates the amount of available free power to charge the EV by. By default: sensor.huawei_power_available_for_charging_2_min'
       selector:
         entity:
           domain: sensor
@@ -61,7 +61,7 @@ blueprint:
       default: sensor.mean_huawei_power_available_for_charging_2_min
     iChargerCurrent:
       name: go-E - Requested current
-      description: 'By default: number.go_echarger_222819_amp'
+      description: 'Requested current to be set from calculations on the charger. By default: number.go_echarger_222819_amp'
       selector:
         entity:
           domain: number
@@ -70,7 +70,7 @@ blueprint:
       default: number.go_echarger_222819_amp
     iForceSinglePhase:
       name: go-E - Force single phase
-      description: 'By default: switch.go_echarger_222819_psm'
+      description: 'Switch to shift between one or three phase charging. By default: switch.go_echarger_222819_psm'
       selector:
         entity:
           domain: switch
@@ -78,7 +78,7 @@ blueprint:
       default: switch.go_echarger_222819_psm
     iCarConnected:
       name: go-E - Car Connected
-      description: 'By default: binary_sensor.go_echarger_222819_car'
+      description: 'Switch to determine if car is plugged in or not to charger. By default: binary_sensor.go_echarger_222819_car'
       selector:
         entity:
           domain: binary_sensor
@@ -86,7 +86,7 @@ blueprint:
       default: binary_sensor.go_echarger_222819_car
     iAllowCharging:
       name: go-E - Switch to allow charging
-      description: 'By default: switch.go_echarger_222819_allow_charging'
+      description: 'Switch to turn charging on and off. By default: switch.go_echarger_222819_allow_charging'
       selector:
         entity:
           domain: switch
@@ -114,8 +114,8 @@ condition:
   entity_id:
   - !input iCarConnected
 
-- condition: template
-  value_template: '{{ ( states(entChargerCurrent) | int(0) ) != valCurrentAvailableForCharging | int }}'
+#- condition: template
+#  value_template: '{{ is_state(entAllowCharging,"off") or ( is_state(entAllowCharging,"on") and ( ( states(entChargerCurrent) | int(0) ) != valCurrentAvailableForCharging | int ) ) }}'
 
 action:
 # Switch between one or three phase
@@ -173,6 +173,7 @@ variables:
   entThreePhaseSwitchLevel: !input iThreePhaseSwitchLevel
   entMeanPowerAvailableForCharging: !input iMeanPowerAvailableForCharging
   entChargerCurrent: !input iChargerCurrent
+  entAllowCharging: !input iAllowCharging
   valPowerAvailable: '{{ states(entMeanPowerAvailableForCharging) }}'
   valPhases: '{{ 3 if valPowerAvailable | float(1) > entThreePhaseSwitchLevel | int else 1 }}'
   valChargerVoltage: "{{ 230 * valPhases | int }}"
