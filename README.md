@@ -70,7 +70,7 @@ For people <b>with</b> battery:
         {%- set batteryTargetSoc = states('number.battery_end_of_charge_soc') | int(100) * 0.98 %}
         {%- set powerAvailable = carCharger + powerMeter + batteryCharger | float(0) %}
         {%- set powerAvailable = (powerAvailable - batteryCharger) if batterySoC < batteryTargetSoc else powerAvailable %}
-        {{ 0 if powerAvailable | float(0) > 0 else powerAvailable | float(0) }}
+        {{ 0 if powerAvailable | float(0) < 100 else powerAvailable | float(0) }}
 ```
 
 
@@ -88,7 +88,7 @@ For people <b>with-out</b> battery:
         {%- set carCharger = states('sensor.go_echarger_222819_nrg_12') | float(0) %}
         {%- set powerMeter = states('sensor.power_meter_active_power') | float(0) %}
         {%- set powerAvailable = carCharger + powerMeter | float(0) %}
-        {{ 0 if powerAvailable | float(0) > 0 else powerAvailable | float(0) }}
+        {{ 0 if powerAvailable | float(0) < 100 else powerAvailable | float(0) }}
 ```
 
 And the mean statistics sensor:
