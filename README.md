@@ -22,30 +22,30 @@ The go-e charger does not have a switch to start and stop charging, so the follo
 <br>
 
 ```yaml
-  - platform: template
-    switches:
-      go_echarger_222819_allow_charging:
-        friendly_name: "Allow Charging"
-        unique_id: go_echarger_222819_allow_charging
-        value_template: "{{ is_state('sensor.go_echarger_222819_frc', 'Charge') }}"
-        turn_on:
-          service: select.select_option
-          target:
-            entity_id: select.go_echarger_222819_frc
-          data:
-            option: "Charge"
-        turn_off:
-          service: select.select_option
-          target:
-            entity_id: select.go_echarger_222819_frc
-          data:
-            option: "Don't charge"
-        icon_template: >-
-          {% if is_state('sensor.go_echarger_222819_frc', 'Charge') %}
-            mdi:power-plug
-          {% else %}
-            mdi:power-plug-off
-          {% endif %}
+- platform: template
+  switches:
+    go_echarger_222819_allow_charging:
+      friendly_name: "Allow Charging"
+      unique_id: go_echarger_222819_allow_charging
+      value_template: "{{ is_state('sensor.go_echarger_222819_frc', 'Charge') }}"
+      turn_on:
+        service: select.select_option
+        target:
+          entity_id: select.go_echarger_222819_frc
+        data:
+          option: "Charge"
+      turn_off:
+        service: select.select_option
+        target:
+          entity_id: select.go_echarger_222819_frc
+        data:
+          option: "Don't charge"
+      icon_template: >-
+        {% if is_state('sensor.go_echarger_222819_frc', 'Charge') %}
+          mdi:power-plug
+        {% else %}
+          mdi:power-plug-off
+        {% endif %}
 ```
 
 <br>
