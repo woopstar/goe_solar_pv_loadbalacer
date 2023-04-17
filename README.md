@@ -10,12 +10,11 @@ With inspiration from https://github.com/MadsGadeberg/EaseeLoadBalancer
 
 <br>
 <b><h2>Important!</h2></b><br>
-Before you use this blueprint, make sure you have the Sun integration, ha-average, go-e mqtt Charger and Huawei Solar Integrations fully up & running. <br>
+Before you use this blueprint, make sure you have the Sun integration, go-e mqtt Charger and Huawei Solar Integrations fully up & running. <br>
 <br>
 Link to <b>Sun</b> Integration: https://www.home-assistant.io/integrations/sun/  <br>
 Link to <b>go-e MQTT</b> Integration: https://github.com/syssi/homeassistant-goecharger-mqtt/ <br>
 Link to <b>Huawei Solar Integration</b> https://github.com/wlcrs/huawei_solar/ <br>
-Link to <b>ha-average</b> https://github.com/Limych/ha-average <br><br>
 
 The go-e charger does not have a switch to start and stop charging, so the following template switch must be created (remember to change your charger id from 222819 to xxxxxx):<br>
 
@@ -49,22 +48,27 @@ The go-e charger does not have a switch to start and stop charging, so the follo
 
 <br>
 
-You will also need to create the following template sensors to calculate how much excess power you currently produce. To  make sure you do not switch too often, we create a median over 2 minutes for the sensor (remember to change your charger id from 222819 to xxxxxx)::<br><br>
+You will also need to create the following template sensors to calculate how much excess power you currently produce. To  make sure you do not switch too often, we create a mean over 2 minutes for the sensor (remember to change your charger id from 222819 to xxxxxx)::<br><br>
 
-For people with battery:
+For people <b>with</b> battery:
 
 ```yaml
 - platform: template
   sensors:
-    huawei_power_available_for_charging:
-      friendly_name: "Huawei Power Available For Charging"
-      unique_id: "huawei_power_available_for_charging"
+    solar_power_available_for_charging:
+      friendly_name: "Solar Power Available For Charging"
+      unique_id: "solar_power_available_for_charging"
       unit_of_measurement: "W"
       device_class: power
       value_template: >-
-        {% set powerAvailable = states('sensor.go_echarger_222819_nrg_12') | float(0) + states('sensor.power_meter_active_power') | float(0) + states('sensor.battery_charge_discharge_power')  | float(0) %}
-        {% set powerAvailable = (powerAvailable - states('sensor.battery_charge_discharge_power') | int(5000)) if states('sensor.battery_state_of_capacity') | int(5) < ( states('number.battery_end_of_charge_soc') | int(100) * 0.98 ) else powerAvailable %}
-        {{ powerAvailable | float(0) }}
+        {%- set carCharger = states('sensor.go_echarger_222819_nrg_12') | float(0) %}
+        {%- set powerMeter = states('sensor.power_meter_active_power') | float(0) %}
+        {%- set batteryCharger = states('sensor.battery_charge_discharge_power') | float(5000) %}
+        {%- set batterySoC = states('sensor.battery_state_of_capacity') | int(5) %}
+        {%- set batteryTargetSoc = states('number.battery_end_of_charge_soc') | int(100) * 0.98 %}
+        {%- set powerAvailable = carCharger + powerMeter + batteryCharger | float(0) %}
+        {%- set powerAvailable = (powerAvailable - batteryCharger) if batterySoC < batteryTargetSoc else powerAvailable %}
+        {{ 0 if powerAvailable | float(0) > 0 else powerAvailable | float(0) }}
 ```
 
 
@@ -73,24 +77,26 @@ For people <b>with-out</b> battery:
 ```yaml
 - platform: template
   sensors:
-    huawei_power_available_for_charging:
-      friendly_name: "Huawei Power Available For Charging"
-      unique_id: "huawei_power_available_for_charging"
+    solar_power_available_for_charging:
+      friendly_name: "Solar Power Available For Charging"
+      unique_id: "solar_power_available_for_charging"
       unit_of_measurement: "W"
       device_class: power
       value_template: >-
-        {% set powerAvailable = states('sensor.go_echarger_222819_nrg_12') | float(0) + states('sensor.power_meter_active_power') | float(0) + states('sensor.battery_charge_discharge_power')  | float(0) %}
-        {{ powerAvailable | float(0) }}
+        {%- set carCharger = states('sensor.go_echarger_222819_nrg_12') | float(0) %}
+        {%- set powerMeter = states('sensor.power_meter_active_power') | float(0) %}
+        {%- set powerAvailable = carCharger + powerMeter | float(0) %}
+        {{ 0 if powerAvailable | float(0) > 0 else powerAvailable | float(0) }}
 ```
 
-And the average sensor:
+And the mean statistics sensor:
 
 ```yaml
-- platform: average
-  name: "Mean Huawei Power Available For Charging 2 min"
-  unique_id: mean_huawei_power_available_for_charging_2_min
-  entities:
-    - sensor.huawei_power_available_for_charging
-  duration:
+- platform: statistics
+  name: "Mean Solar Power Available For Charging Over 2 min"
+  entity_id: sensor.solar_power_available_for_charging
+  unique_id: mean_solar_power_available_for_charging_over_2_min
+  state_characteristic: mean
+  max_age:
     minutes: 2
 ```
