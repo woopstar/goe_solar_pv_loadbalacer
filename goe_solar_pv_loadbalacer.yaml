@@ -1,9 +1,9 @@
 blueprint:
   domain: automation
-  name: go-e MQTT & Huawei Solar PV/EV Loadbalancing
-  description: The integration of Huawei Solar and go-e MQTT enables dynamic balancing
+  name: go-e MQTT & Solar Power PV/EV Loadbalancing
+  description: The integration of Solar Power and go-e MQTT enables dynamic balancing
     of photovoltaic (PV) load into your EV.
-  source_url: https://github.com/woopstar/goe_huawei_pv_loadbalacer/blob/main/goe_huawei_pv_loadbalacer.yaml
+  source_url: https://github.com/woopstar/goe_solar_pv_loadbalacer/blob/main/goe_solar_pv_loadbalacer.yaml
   input:
     iTimeStart:
       name: Automation Activation Time
@@ -51,14 +51,14 @@ blueprint:
           mode: slider
       default: 4200
     iMeanPowerAvailableForCharging:
-      name: Power Available For Charging
-      description: 'Sensor that indicates the amount of available free power to charge the EV by. By default: sensor.huawei_power_available_for_charging_2_min'
+      name: Solar Power Available For Charging
+      description: 'Sensor that indicates the amount of available free power to charge the EV/PV by. By default: sensor.mean_solar_power_available_for_charging_over_2_min'
       selector:
         entity:
           domain: sensor
           device_class: power
           multiple: false
-      default: sensor.mean_huawei_power_available_for_charging_2_min
+      default: sensor.mean_solar_power_available_for_charging_over_2_min
     iChargerCurrent:
       name: go-E - Requested current
       description: 'Requested current to be set from calculations on the charger. By default: number.go_echarger_222819_amp'
@@ -113,9 +113,6 @@ condition:
   state: "on"
   entity_id:
   - !input iCarConnected
-
-#- condition: template
-#  value_template: '{{ is_state(entAllowCharging,"off") or ( is_state(entAllowCharging,"on") and ( ( states(entChargerCurrent) | int(0) ) != valCurrentAvailableForCharging | int ) ) }}'
 
 action:
 # Switch between one or three phase
